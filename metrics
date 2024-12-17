@@ -1,0 +1,113 @@
+import sqlite3
+import random
+from datetime import datetime, timedelta
+
+# Conectar a la base de datos (se creará si no existe)
+conn = sqlite3.connect('example.db')
+cursor = conn.cursor()
+
+# Crear una tabla
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS sales (
+    id INTEGER PRIMARY KEY,
+    date TEXT,
+    amount REAL
+)
+''')
+
+# Generar datos de ejemplo
+start_date = datetime(2023, 1, 1)
+data = []
+for i in range(100):  # 100 días de datos
+    date = start_date + timedelta(days=i)
+    amount = round(random.uniform(50, 500), 2)  # Cantidad aleatoria entre 50 y 500
+    data.append((date.strftime('%Y-%m-%d'), amount))
+
+# Insertar datos de ejemplo
+cursor.executemany('''
+INSERT INTO sales (date, amount) VALUES (?, ?)
+''', data)
+
+# Guardar los cambios y cerrar la conexión
+conn.commit()
+conn.close()
+import sqlite3
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# Configurar el estilo de Seaborn
+sns.set(style="whitegrid")
+
+# Conectar a la base de datos
+conn = sqlite3.connect('example.db')
+cursor = conn.cursor()
+
+# Obtener los datos de la tabla
+cursor.execute('SELECT date, amount FROM sales')
+data = cursor.fetchall()
+
+# Cerrar la conexión
+conn.close()
+
+import sqlite3
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# Configurar el estilo de Seaborn
+sns.set(style="whitegrid")
+
+# Conectar a la base de datos
+conn = sqlite3.connect('example.db')
+cursor = conn.cursor()
+
+# Obtener los datos de la tabla
+cursor.execute('SELECT date, amount FROM sales')
+data = cursor.fetchall()
+
+# Cerrar la conexión
+conn.close()
+
+# Convertir los datos a un DataFrame de pandas
+df = pd.DataFrame(data, columns=['date', 'amount'])
+df['date'] = pd.to_datetime(df['date'])
+
+# Reducir la cantidad de datos mostrados para mejorar la legibilidad
+df_sampled = df.iloc[::5, :]  # Tomar una muestra cada 5 días
+
+# Crear una figura con múltiples subplots
+fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+
+# Gráfico de líneas
+sns.lineplot(x='date', y='amount', data=df_sampled, ax=axs[0, 0], marker='o')
+axs[0, 0].set_title('Ventas Diarias (Líneas)')
+axs[0, 0].set_xlabel('Fecha')
+axs[0, 0].set_ylabel('Cantidad')
+axs[0, 0].tick_params(axis='x', rotation=45)
+
+# Gráfico de barras
+sns.barplot(x='date', y='amount', data=df_sampled, ax=axs[0, 1], hue='date', dodge=False, palette='viridis', legend=False)
+axs[0, 1].set_title('Ventas Diarias (Barras)')
+axs[0, 1].set_xlabel('Fecha')
+axs[0, 1].set_ylabel('Cantidad')
+axs[0, 1].tick_params(axis='x', rotation=45)
+
+# Gráfico de dispersión
+sns.scatterplot(x='date', y='amount', data=df_sampled, ax=axs[1, 0], hue='amount', palette='coolwarm', size='amount', sizes=(20, 200))
+axs[1, 0].set_title('Ventas Diarias (Dispersión)')
+axs[1, 0].set_xlabel('Fecha')
+axs[1, 0].set_ylabel('Cantidad')
+axs[1, 0].tick_params(axis='x', rotation=45)
+
+# Gráfico de área
+sns.lineplot(x='date', y='amount', data=df_sampled, ax=axs[1, 1], color="Slateblue", alpha=0.6)
+axs[1, 1].fill_between(df_sampled['date'], df_sampled['amount'], color="skyblue", alpha=0.4)
+axs[1, 1].set_title('Ventas Diarias (Área)')
+axs[1, 1].set_xlabel('Fecha')
+axs[1, 1].set_ylabel('Cantidad')
+axs[1, 1].tick_params(axis='x', rotation=45)
+
+# Ajustar el layout
+plt.tight_layout()
+plt.show()
